@@ -6,7 +6,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # Get the SDK path for ncurses include files
 execute_process(
-    COMMAND "${CMAKE_COMMAND}" -E env "PATH=$ENV{PATH}" xcrun --show-sdk-path
+    COMMAND xcrun --show-sdk-path
     OUTPUT_VARIABLE SDK_PATH
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
@@ -30,14 +30,12 @@ find_library(NCURSES_LIBRARY ncurses REQUIRED)
 # On Windows, we also need windows library for color support
 if(WIN32)
     find_library(WINDOWS_LIBRARY windows REQUIRED)
-    target_link_libraries(${PROJECT_NAME} ${NCURSES_LIBRARY} ${WINDOWS_LIBRARY})
-else()
-    target_link_libraries(${PROJECT_NAME} ${NCURSES_LIBRARY})
 endif()
 
 # Set include directories
 include_directories(${NCURSES_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/src)
 
 # Add executable
 add_executable(${PROJECT_NAME}
@@ -47,6 +45,14 @@ add_executable(${PROJECT_NAME}
     src/game.c
     src/input.c
 )
+
+# Link libraries
+target_link_libraries(${PROJECT_NAME} ${NCURSES_LIBRARY})
+
+# On Windows, we also need windows library for color support
+if(WIN32)
+    target_link_libraries(${PROJECT_NAME} ${WINDOWS_LIBRARY})
+endif()
 
 # Compilation flags
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Werror)

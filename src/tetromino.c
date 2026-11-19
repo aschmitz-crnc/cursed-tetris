@@ -7,7 +7,7 @@ tetromino_t create_tetromino(tetromino_type type, rotation rotation) {
     tet.color = get_color(type);
 
     // Set shape dimensions based on type
-    const int (*shape_ptr)() = get_shape_ptr(type);
+    int (*shape_ptr)() = get_shape_ptr(type);
     tet.shape_width = shape_ptr[rotation][0][0];
     tet.shape_height = shape_ptr[rotation][0][1];
 
@@ -36,7 +36,7 @@ void get_tetromino_bounds(const tetromino_t* tet, int* x, int* y, int* width, in
 }
 
 bool tetromino_has_block(const tetromino_t* tet, int dx, int dy) {
-    const int (*shape_ptr)() = get_shape_ptr(tet->type);
+    int (*shape_ptr)() = get_shape_ptr(tet->type);
     for (int i = 0; i < tet->shape_height; i++) {
         for (int j = 0; j < tet->shape_width; j++) {
             if (shape_ptr[tet->rotation][i][j] == 1) {

@@ -110,16 +110,17 @@ typedef struct {
 } tetromino_t;
 
 // Get tetromino shape data based on type and rotation
-static inline const int (*get_shape_ptr(tetromino_type type))() {
+// Returns a pointer to a 2D array
+static inline int (*get_shape_ptr(tetromino_type type))() {
     switch (type) {
-        case TETROMINO_I: return I_SHAPES_PTR;
-        case TETROMINO_O: return O_SHAPES_PTR;
-        case TETROMINO_T: return T_SHAPES_PTR;
-        case TETROMINO_S: return S_SHAPES_PTR;
-        case TETROMINO_Z: return Z_SHAPES_PTR;
-        case TETROMINO_J: return J_SHAPES_PTR;
-        case TETROMINO_L: return L_SHAPES_PTR;
-        default: return I_SHAPES_PTR;
+        case TETROMINO_I: return (int (*)[4][4])I_SHAPES_PTR;
+        case TETROMINO_O: return (int (*)[3][3])O_SHAPES_PTR;
+        case TETROMINO_T: return (int (*)[3][3])T_SHAPES_PTR;
+        case TETROMINO_S: return (int (*)[3][3])S_SHAPES_PTR;
+        case TETROMINO_Z: return (int (*)[3][3])Z_SHAPES_PTR;
+        case TETROMINO_J: return (int (*)[3][3])J_SHAPES_PTR;
+        case TETROMINO_L: return (int (*)[3][3])L_SHAPES_PTR;
+        default: return (int (*)[4][4])I_SHAPES_PTR;
     }
 }
 

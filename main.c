@@ -2,10 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <time.h>
 
 // Define minimum terminal size
 #define MIN_TERMINAL_WIDTH 80
 #define MIN_TERMINAL_HEIGHT 25
+
+// Time structure for tracking game time
+struct timespec game_time;
 
 // Global game pointer
 static game_t* g_game = NULL;
