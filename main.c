@@ -32,25 +32,26 @@ static void render_header(void) {
     const char* sub2 = "/____/___/\\_____/\\_____/  ";
     const char* credits = "    A Cursed Tetris Game\n";
     const char* controls = "    Left:  h/H    Right:  l/L    Down:  j/J    Rotate: i/I\n";
-    const char* drop = "    Hard Drop: Space    Pause: P\n";
-    printw("%s\n%s\n%s\n%s\n%s\n", title, sub1, sub2, credits, controls);
+    printw("%s\n%s\n%s\n%s\n", title, sub1, sub2, credits);
 }
 
 // Render playfield
 static void render_playfield(const game_t* game) {
-    int start_x, start_y, end_x, end_y;
     int i, j;
 
     // Calculate position based on terminal size
     // Playfield: 40 chars wide, 20 rows high
     // Center horizontally, left-aligned
-    start_x = (getmaxx() - PLAYFIELD_WIDTH) / 2;
-    start_y = 3;  // Leave room for header
+    int max_x = getmaxx(stdscr);
+    int max_y = getmaxy(stdscr);
+
+    int start_x = (max_x - PLAYFIELD_WIDTH) / 2;
+    int start_y = 3;  // Leave room for header
 
     // Ensure minimum size
     if (start_x < 1) start_x = 1;
-    end_x = start_x + PLAYFIELD_WIDTH;
-    end_y = start_y + PLAYFIELD_HEIGHT;
+    int end_x = start_x + PLAYFIELD_WIDTH;
+    int end_y = start_y + PLAYFIELD_HEIGHT;
 
     // Clear area
     for (i = start_y; i < end_y; i++) {
@@ -68,9 +69,8 @@ static void render_playfield(const game_t* game) {
             if (cell > 0) {
                 // Determine character based on cell value
                 int lower = cell & 0xFF;
-                int upper = (cell >> 8) & 0xFF;
 
-                switch (upper) {
+                switch ((cell >> 8) & 0xFF) {
                     case '|': ch = '|'; break;
                     case '+': ch = '+'; break;
                     case 'T': ch = 'T'; break;
@@ -89,17 +89,19 @@ static void render_playfield(const game_t* game) {
 
 // Render next pieces preview
 static void render_next_pieces(const game_t* game) {
-    int start_x, start_y, end_x, end_y;
     int i, j, k;
 
     // Calculate position - right side of screen
-    start_x = getmaxx() - PLAYFIELD_WIDTH - 2;
-    start_y = 2;
+    int max_x = getmaxx(stdscr);
+    int max_y = getmaxy(stdscr);
+
+    int start_x = max_x - PLAYFIELD_WIDTH - 2;
+    int start_y = 2;
 
     // Ensure minimum size
     if (start_x < PLAYFIELD_WIDTH + 10) start_x = PLAYFIELD_WIDTH + 10;
-    end_x = start_x + PLAYFIELD_WIDTH;
-    end_y = start_y + 3;
+    int end_x = start_x + PLAYFIELD_WIDTH;
+    int end_y = start_y + 3;
 
     // Clear area
     for (i = start_y; i < end_y; i++) {
@@ -115,19 +117,19 @@ static void render_next_pieces(const game_t* game) {
     // Draw pieces
     int piece_y = start_y + 2;
     for (i = 0; i < 3; i++) {
-        tetromino_t* piece = &game->next_pieces.pieces[i];
-        const int (*shape_ptr)() = get_shape_ptr(piece->type);
+        tetromino_t piece = game->next_pieces.pieces[i];
+        int (*shape_ptr)() = get_shape_ptr(piece.type);
 
         // Calculate visible portion
-        int visible_width = piece->shape_width;
-        int visible_height = piece->shape_height;
+        int visible_width = piece.shape_width;
+        int visible_height = piece.shape_height;
 
         for (j = 0; j < visible_height; j++) {
             for (k = 0; k < visible_width; k++) {
-                if (shape_ptr[piece->rotation][j][k] == 1) {
-                    mvaddch(piece_y + j, start_x + k, get_symbol(piece->type));
+                if (shape_ptr[piece.rotation][j][k] == 1) {
+                    mvaddch(piece_y + j, start_x + k, get_symbol(piece.type));
                     color_start(piece_y + j, start_x + k);
-                    color_change(piece_y + j, start_x + k, piece->color);
+                    color_change(piece_y + j, start_x + k, piece.color);
                     color_end(piece_y + j, start_x + k);
                 }
             }
@@ -138,17 +140,19 @@ static void render_next_pieces(const game_t* game) {
 
 // Render score box
 static void render_score(const game_t* game) {
-    int start_x, start_y, end_x, end_y;
     int i;
 
     // Calculate position - right side of screen
-    start_x = getmaxx() - SCORE_WIDTH - 2;
-    start_y = PLAYFIELD_HEIGHT + 2;
+    int max_x = getmaxx(stdscr);
+    int max_y = getmaxy(stdscr);
+
+    int start_x = max_x - SCORE_WIDTH - 2;
+    int start_y = PLAYFIELD_HEIGHT + 2;
 
     // Ensure minimum size
     if (start_x < PLAYFIELD_WIDTH + 10 + SCORE_WIDTH + 2) start_x = PLAYFIELD_WIDTH + 10 + SCORE_WIDTH + 2;
-    end_x = start_x + SCORE_WIDTH;
-    end_y = start_y + SCORE_HEIGHT;
+    int end_x = start_x + SCORE_WIDTH;
+    int end_y = start_y + SCORE_HEIGHT;
 
     // Clear area
     for (i = start_y; i < end_y; i++) {
@@ -172,15 +176,18 @@ static void render_message(const game_t* game) {
     int start_x, start_y, end_x, end_y;
 
     // Calculate position - centered at bottom
-    start_x = (getmaxx() - strlen(game->message)) / 2;
-    start_y = getmaxy() - 3;
+    int max_x = getmaxx(stdscr);
+    int max_y = getmaxy(stdscr);
+
+    start_x = (max_x - strlen(game->message)) / 2;
+    start_y = max_y - 3;
 
     // Ensure minimum size
     if (start_x < 1) start_x = 1;
     end_x = start_x + strlen(game->message);
     end_y = start_y + 3;
 
-    if (end_y > getmaxy()) end_y = getmaxy();
+    if (end_y > max_y) end_y = max_y;
 
     // Clear area
     for (int i = start_y; i < end_y; i++) {
