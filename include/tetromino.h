@@ -13,7 +13,7 @@ typedef enum {
     TETROMINO_J,
     TETROMINO_L,
     TETROMINO_COUNT
-} tetromino_type;
+} tetromino_t;
 
 // Tetromino colors (NCurses colors)
 typedef enum {
@@ -93,21 +93,22 @@ static const int L_SHAPES[4][3][3] = {
 
 // Get tetromino shape data based on type and rotation
 // Returns a pointer to a 2D array (constant)
-static inline const int (*get_shape_ptr(tetromino_type type))() {
+static inline const int *get_shape_ptr(tetromino_t type)
+{
     switch (type) {
-        case TETROMINO_I: return (const int (*)[4][4])I_SHAPES;
-        case TETROMINO_O: return (const int (*)[3][3])O_SHAPES;
-        case TETROMINO_T: return (const int (*)[3][3])T_SHAPES;
-        case TETROMINO_S: return (const int (*)[3][3])S_SHAPES;
-        case TETROMINO_Z: return (const int (*)[3][3])Z_SHAPES;
-        case TETROMINO_J: return (const int (*)[3][3])J_SHAPES;
-        case TETROMINO_L: return (const int (*)[3][3])L_SHAPES;
-        default: return (const int (*)[4][4])I_SHAPES;
+        case TETROMINO_I: return (const int (*))I_SHAPES;
+        case TETROMINO_O: return (const int (*))O_SHAPES;
+        case TETROMINO_T: return (const int (*))T_SHAPES;
+        case TETROMINO_S: return (const int (*))S_SHAPES;
+        case TETROMINO_Z: return (const int (*))Z_SHAPES;
+        case TETROMINO_J: return (const int (*))J_SHAPES;
+        case TETROMINO_L: return (const int (*))L_SHAPES;
+        default: return (const int (*))I_SHAPES;
     }
 }
 
 // Get tetromino color based on type
-static inline tetromino_color get_color(tetromino_type type) {
+static inline tetromino_color get_color(tetromino_t type) {
     switch (type) {
         case TETROMINO_I: return COLOR_I;
         case TETROMINO_O: return COLOR_O;
@@ -121,7 +122,7 @@ static inline tetromino_color get_color(tetromino_type type) {
 }
 
 // Get tetromino name string
-static inline const char* get_name(tetromino_type type) {
+static inline const char* get_name(tetromino_t type) {
     switch (type) {
         case TETROMINO_I: return "I";
         case TETROMINO_O: return "O";
@@ -135,7 +136,7 @@ static inline const char* get_name(tetromino_type type) {
 }
 
 // Get tetromino symbol character for display
-static inline char get_symbol(tetromino_type type) {
+static inline char get_symbol(tetromino_t type) {
     switch (type) {
         case TETROMINO_I: return '|';
         case TETROMINO_O: return '+';
@@ -149,7 +150,7 @@ static inline char get_symbol(tetromino_type type) {
 }
 
 // Create a new tetromino with given type and rotation
-tetromino_t create_tetromino(tetromino_type type, rotation rotation);
+tetromino_t create_tetromino(tetromino_t type, rotation rotation);
 
 // Rotate tetromino 90 degrees clockwise
 void rotate_tetromino(tetromino_t* tet);
@@ -161,6 +162,6 @@ void get_tetromino_bounds(const tetromino_t* tet, int* x, int* y, int* width, in
 bool tetromino_has_block(const tetromino_t* tet, int dx, int dy);
 
 // Get tetromino type from name
-tetromino_type get_type_from_name(const char* name);
+tetromino_t get_type_from_name(const char* name);
 
 #endif // TETROMINO_H
