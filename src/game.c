@@ -23,8 +23,8 @@ void game_init(game_t* game, const char* title, const char* player_name) {
     game->running = true;
     game->drop_interval = 500;  // ms
     game->drop_count = 0;
-    game->last_time.tv_sec = 0;
-    game->last_time.tv_nsec = 0;
+    game_time.tv_sec = 0;
+    game_time.tv_nsec = 0;
     game_set_next_piece(game, TETROMINO_COUNT - 1);
 }
 
@@ -41,7 +41,7 @@ void game_start(game_t* game) {
     game->current_piece = create_tetromino(game_get_next_piece(game), ROTATION_0);
     game_set_next_piece(game, board_get_next_type(&game->board));
     game->drop_count = 0;
-    clock_gettime(CLOCK_REALTIME, &game->last_time);
+    clock_gettime(CLOCK_REALTIME, &game_time);
 }
 
 void game_update(game_t* game) {
@@ -50,13 +50,13 @@ void game_update(game_t* game) {
     }
 
     time_t now = time(NULL);
-    long elapsed_ms = (now - game->last_time.tv_sec) * 1000 +
-                      (game->last_time.tv_nsec / 1000000L);
+    long elapsed_ms = (now - game_time.tv_sec) * 1000 +
+                      (game_time.tv_nsec / 1000000L);
 
     if (elapsed_ms >= game->drop_interval) {
         game->drop_count++;
-        game->last_time.tv_sec = now;
-        game->last_time.tv_nsec = time(NULL) * 1000 - now * 1000;
+        game_time.tv_sec = now;
+        game_time.tv_nsec = time(NULL) * 1000 - now * 1000;
 
         if (game->drop_count >= 10) {
             game->drop_count = 0;
@@ -178,7 +178,7 @@ void action_move_down(game_t* game) {
 
 void action_rotate(game_t* game) {
     tetromino_t* piece = &game->current_piece;
-    const int (*shape_ptr)() = get_shape_ptr(piece->type);
+    int (*shape_ptr)() = get_shape_ptr(piece->type);
 
     // Try rotating
     piece->rotation = (piece->rotation + 1) % 4;

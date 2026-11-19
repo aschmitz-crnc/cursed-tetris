@@ -1,5 +1,14 @@
 #include "tetromino.h"
 
+// Shape matrices by type
+static const int (*I_SHAPES)() = (const int (*)[4][4])I_SHAPES;
+static const int (*O_SHAPES)() = (const int (*)[3][3])O_SHAPES;
+static const int (*T_SHAPES)() = (const int (*)[3][3])T_SHAPES;
+static const int (*S_SHAPES)() = (const int (*)[3][3])S_SHAPES;
+static const int (*Z_SHAPES)() = (const int (*)[3][3])Z_SHAPES;
+static const int (*J_SHAPES)() = (const int (*)[3][3])J_SHAPES;
+static const int (*L_SHAPES)() = (const int (*)[3][3])L_SHAPES;
+
 tetromino_t create_tetromino(tetromino_type type, rotation rotation) {
     tetromino_t tet;
     tet.type = type;
@@ -7,7 +16,18 @@ tetromino_t create_tetromino(tetromino_type type, rotation rotation) {
     tet.color = get_color(type);
 
     // Set shape dimensions based on type
-    int (*shape_ptr)() = get_shape_ptr(type);
+    int (*shape_ptr)() = NULL;
+    switch (type) {
+        case TETROMINO_I: shape_ptr = I_SHAPES; break;
+        case TETROMINO_O: shape_ptr = O_SHAPES; break;
+        case TETROMINO_T: shape_ptr = T_SHAPES; break;
+        case TETROMINO_S: shape_ptr = S_SHAPES; break;
+        case TETROMINO_Z: shape_ptr = Z_SHAPES; break;
+        case TETROMINO_J: shape_ptr = J_SHAPES; break;
+        case TETROMINO_L: shape_ptr = L_SHAPES; break;
+        default: shape_ptr = I_SHAPES;
+    }
+
     tet.shape_width = shape_ptr[rotation][0][0];
     tet.shape_height = shape_ptr[rotation][0][1];
 

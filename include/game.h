@@ -3,9 +3,14 @@
 
 #include "board.h"
 #include "tetromino.h"
+#include "input.h"
 #include <ncurses.h>
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
+
+// Time structure for tracking game time
+struct timespec game_time;
 
 // Screen layout constants
 #define PLAYFIELD_WIDTH 40
@@ -46,7 +51,6 @@ typedef struct {
     char title[32];
     char player_name[32];
     char message[64];
-    struct timespec last_time;
 } game_t;
 
 // Initialize game

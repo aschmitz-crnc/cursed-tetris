@@ -55,7 +55,7 @@ static const int O_SHAPES[4][3][3] = {
 static const int T_SHAPES[4][3][3] = {
     {{0,1,0}, {1,1,1}, {0,0,0}},  // rotation 0
     {{0,1,0}, {0,1,1}, {0,1,0}},  // rotation 1
-    {{0,0,1}, {1,1,1}, {0,0,0}},  // rotation 2
+    {{0,0,0}, {0,0,1}, {1,1,1}},  // rotation 2
     {{0,1,0}, {1,1,0}, {0,1,0}},  // rotation 3
 };
 
@@ -91,36 +91,18 @@ static const int L_SHAPES[4][3][3] = {
     {{0,1,0}, {1,1,0}, {0,0,1}},  // rotation 3
 };
 
-// Shape matrix pointers
-static const int (*I_SHAPES_PTR)[4][4] = I_SHAPES;
-static const int (*O_SHAPES_PTR)[3][3] = O_SHAPES;
-static const int (*T_SHAPES_PTR)[3][3] = T_SHAPES;
-static const int (*S_SHAPES_PTR)[3][3] = S_SHAPES;
-static const int (*Z_SHAPES_PTR)[3][3] = Z_SHAPES;
-static const int (*J_SHAPES_PTR)[3][3] = J_SHAPES;
-static const int (*L_SHAPES_PTR)[3][3] = L_SHAPES;
-
-// Tetromino structure
-typedef struct {
-    tetromino_type type;
-    rotation rotation;
-    tetromino_color color;
-    int shape_width;
-    int shape_height;
-} tetromino_t;
-
 // Get tetromino shape data based on type and rotation
-// Returns a pointer to a 2D array
-static inline int (*get_shape_ptr(tetromino_type type))() {
+// Returns a pointer to a 2D array (constant)
+static inline const int (*get_shape_ptr(tetromino_type type))() {
     switch (type) {
-        case TETROMINO_I: return (int (*)[4][4])I_SHAPES_PTR;
-        case TETROMINO_O: return (int (*)[3][3])O_SHAPES_PTR;
-        case TETROMINO_T: return (int (*)[3][3])T_SHAPES_PTR;
-        case TETROMINO_S: return (int (*)[3][3])S_SHAPES_PTR;
-        case TETROMINO_Z: return (int (*)[3][3])Z_SHAPES_PTR;
-        case TETROMINO_J: return (int (*)[3][3])J_SHAPES_PTR;
-        case TETROMINO_L: return (int (*)[3][3])L_SHAPES_PTR;
-        default: return (int (*)[4][4])I_SHAPES_PTR;
+        case TETROMINO_I: return (const int (*)[4][4])I_SHAPES;
+        case TETROMINO_O: return (const int (*)[3][3])O_SHAPES;
+        case TETROMINO_T: return (const int (*)[3][3])T_SHAPES;
+        case TETROMINO_S: return (const int (*)[3][3])S_SHAPES;
+        case TETROMINO_Z: return (const int (*)[3][3])Z_SHAPES;
+        case TETROMINO_J: return (const int (*)[3][3])J_SHAPES;
+        case TETROMINO_L: return (const int (*)[3][3])L_SHAPES;
+        default: return (const int (*)[4][4])I_SHAPES;
     }
 }
 

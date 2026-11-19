@@ -210,23 +210,17 @@ static void render_message(const game_t* game) {
 static void render_state(const game_t* game) {
     switch (game->state) {
         case STATE_PLAYING:
-            render_title();
-            render_header();
             render_playfield(game);
             render_next_pieces(game);
             render_score(game);
             break;
         case STATE_PAUSED:
-            render_title();
-            render_header();
             render_playfield(game);
             render_next_pieces(game);
             render_score(game);
             render_message(game);
             break;
         case STATE_GAMEOVER:
-            render_title();
-            render_header();
             render_playfield(game);
             render_next_pieces(game);
             render_score(game);
@@ -257,25 +251,27 @@ static void render_title(void) {
 
 // Initialize ncurses colors properly
 static void init_ncurses_colors(void) {
-    // Initialize default colors
-    init_color(COLOR_BLACK, 0, 0, 0);
-    init_color(COLOR_WHITE, 255, 255, 255);
-    init_color(COLOR_BLUE, 0, 128, 255);
-    init_color(COLOR_GREEN, 0, 255, 0);
-    init_color(COLOR_YELLOW, 255, 255, 0);
-    init_color(COLOR_PURPLE, 128, 0, 128);
-    init_color(COLOR_CYAN, 0, 255, 255);
-    init_color(COLOR_RED, 255, 0, 0);
-    init_color(COLOR_MAGENTA, 255, 0, 255);
-    init_color(COLOR_ORANGE, 255, 128, 0);
+    // Initialize default colors (only needed if terminal doesn't support colors)
+    if (has_colors()) {
+        init_color(COLOR_BLACK, 0, 0, 0);
+        init_color(COLOR_WHITE, 255, 255, 255);
+        init_color(COLOR_BLUE, 0, 128, 255);
+        init_color(COLOR_GREEN, 0, 255, 0);
+        init_color(COLOR_YELLOW, 255, 255, 0);
+        init_color(COLOR_PURPLE, 128, 0, 128);
+        init_color(COLOR_CYAN, 0, 255, 255);
+        init_color(COLOR_RED, 255, 0, 0);
+        init_color(COLOR_MAGENTA, 255, 0, 255);
+        init_color(COLOR_ORANGE, 255, 128, 0);
 
-    // Initialize color pairs
-    init_pair(COLOR_PAIR_BACKGROUND, COLOR_BLACK, COLOR_BLACK);
-    init_pair(COLOR_PAIR_TITLE, COLOR_WHITE, COLOR_BLACK);
-    init_pair(COLOR_PAIR_SCORE, COLOR_YELLOW, COLOR_BLACK);
-    init_pair(COLOR_PAIR_NEXT, COLOR_CYAN, COLOR_BLACK);
-    init_pair(COLOR_PAIR_MESSAGE, COLOR_WHITE, COLOR_BLACK);
-    init_pair(COLOR_PAIR_GAMEOVER, COLOR_RED, COLOR_BLACK);
+        // Initialize color pairs
+        init_pair(COLOR_PAIR_BACKGROUND, COLOR_BLACK, COLOR_BLACK);
+        init_pair(COLOR_PAIR_TITLE, COLOR_WHITE, COLOR_BLACK);
+        init_pair(COLOR_PAIR_SCORE, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(COLOR_PAIR_NEXT, COLOR_CYAN, COLOR_BLACK);
+        init_pair(COLOR_PAIR_MESSAGE, COLOR_WHITE, COLOR_BLACK);
+        init_pair(COLOR_PAIR_GAMEOVER, COLOR_RED, COLOR_BLACK);
+    }
 }
 
 // Render game
@@ -305,7 +301,7 @@ void game_render(game_t* game) {
 }
 
 // Render all components (called during game loop)
-void game_render_all(game_t* game) {
+static void game_render_all(game_t* game) {
     // Clear screen
     clear();
 
