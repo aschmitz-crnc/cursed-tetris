@@ -4,40 +4,15 @@ project(cursed-tetris VERSION 1.0.0 LANGUAGES C)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-# Get the SDK path for ncurses include files
-execute_process(
-    COMMAND xcrun --show-sdk-path
-    OUTPUT_VARIABLE SDK_PATH
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+# Help IDEs (clangd etc.) resolve includes
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(NCURSES_INCLUDE_DIR "${SDK_PATH}/usr/include")
+# ncurses (portable: handles macOS SDK / system prefixes for us)
+find_package(Curses REQUIRED)
 
-# Find ncurses
-find_path(NCURSES_INCLUDE_DIRS
-    NAMES ncurses.h
-    PATHS "${NCURSES_INCLUDE_DIR}"
-    NO_DEFAULT_PATH
-)
+# POSIX.1-2008 for clock_gettime()/CLOCK_MONOTONIC under -std=c99
+add_definitions(-D_POSIX_C_SOURCE=200809L)
 
-if(NOT NCURSES_INCLUDE_DIRS)
-    message(FATAL_ERROR "ncurses not found at ${NCURSES_INCLUDE_DIR}")
-endif()
-
-# Find required libraries
-find_library(NCURSES_LIBRARY ncurses REQUIRED)
-
-# On Windows, we also need windows library for color support
-if(WIN32)
-    find_library(WINDOWS_LIBRARY windows REQUIRED)
-endif()
-
-# Set include directories
-include_directories(${NCURSES_INCLUDE_DIRS})
-include_directories(${CMAKE_SOURCE_DIR}/include)
-include_directories(${CMAKE_SOURCE_DIR}/src)
-
-# Add executable
 add_executable(${PROJECT_NAME}
     main.c
     src/tetromino.c
@@ -46,16 +21,13 @@ add_executable(${PROJECT_NAME}
     src/input.c
 )
 
-# Link libraries
-target_link_libraries(${PROJECT_NAME} ${NCURSES_LIBRARY})
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
+    ${CURSES_INCLUDE_DIRS}
+)
 
-# On Windows, we also need windows library for color support
-if(WIN32)
-    target_link_libraries(${PROJECT_NAME} ${WINDOWS_LIBRARY})
-endif()
+target_link_libraries(${PROJECT_NAME} PRIVATE ${CURSES_LIBRARIES})
 
-# Compilation flags
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Werror)
 
-# Installation
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
