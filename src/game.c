@@ -179,8 +179,11 @@ void game_handle_input(game_t* game, input_type input)
         case INPUT_DOWN:
             action_move_down(game);
             break;
-        case INPUT_ROTATE:
-            action_rotate(game);
+        case INPUT_ROTATE_CW:
+            action_rotate_cw(game);
+            break;
+        case INPUT_ROTATE_CCW:
+            action_rotate_ccw(game);
             break;
         case INPUT_HARD_DROP:
             action_hard_drop(game);
@@ -227,14 +230,14 @@ void action_move_down(game_t* game)
     }
 }
 
-void action_rotate(game_t* game)
+/* Rotate 90 degrees in the given direction (+1 = CW, -1 = CCW),
+ * trying the kick offsets in order. */
+static void rotate_to(game_t* game, int direction)
 {
-    if (game->state != STATE_PLAYING)
-        return;
-
     piece_t rotated = game->current_piece;
-    rotated.rotation =
-        (rotation)((rotated.rotation + 1) % ROTATION_COUNT);
+    int new_rot = rotated.rotation + direction;
+    new_rot = ((new_rot % ROTATION_COUNT) + ROTATION_COUNT) % ROTATION_COUNT;
+    rotated.rotation = (rotation)new_rot;
 
     for (int i = 0; i < (int)(sizeof(KICK_OFFSETS) / sizeof(KICK_OFFSETS[0])); i++) {
         int kick = KICK_OFFSETS[i];
@@ -245,6 +248,20 @@ void action_rotate(game_t* game)
         }
     }
     /* No kick position fit: rotation is rejected. */
+}
+
+void action_rotate_cw(game_t* game)
+{
+    if (game->state != STATE_PLAYING)
+        return;
+    rotate_to(game, +1);
+}
+
+void action_rotate_ccw(game_t* game)
+{
+    if (game->state != STATE_PLAYING)
+        return;
+    rotate_to(game, -1);
 }
 
 void action_hard_drop(game_t* game)

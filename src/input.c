@@ -12,13 +12,16 @@ input_type input_convert_key(int keycode)
     case 'L':
         return INPUT_RIGHT;
     case KEY_DOWN:
-    case 'j':
-    case 'J':
+    case 'm':
+    case 'M':
         return INPUT_DOWN;
     case KEY_UP:
-    case 'i':
-    case 'I':
-        return INPUT_ROTATE;
+    case 'j':
+    case 'J':
+        return INPUT_ROTATE_CW;
+    case 'k':
+    case 'K':
+        return INPUT_ROTATE_CCW;
     case ' ':
         return INPUT_HARD_DROP;
     case 'p':

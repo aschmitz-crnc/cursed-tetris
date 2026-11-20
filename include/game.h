@@ -62,7 +62,8 @@ void game_handle_input(game_t* game, input_type input);
 void action_move_left(game_t* game);
 void action_move_right(game_t* game);
 void action_move_down(game_t* game);
-void action_rotate(game_t* game);
+void action_rotate_cw(game_t* game);
+void action_rotate_ccw(game_t* game);
 void action_hard_drop(game_t* game);
 void action_pause(game_t* game);
 

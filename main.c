@@ -17,7 +17,7 @@
  * whose content can shrink (previews, stat values, message line) are
  * explicitly blanked before being rewritten, so no stale cells remain.
  */
-#define MIN_TERMINAL_WIDTH 56
+#define MIN_TERMINAL_WIDTH 62
 #define MIN_TERMINAL_HEIGHT 24
 
 #define BOARD_X 1
@@ -163,8 +163,8 @@ static void render_stats(const game_t* game)
     render_stat_row(FRAME_TOP + 18, "LEVEL", game_get_level(game));
 
     /* Controls (constant) */
-    mvaddnstr(FRAME_TOP + 20, PANEL_X, "h/l: move  j: drop  i: rotate", -1);
-    mvaddnstr(FRAME_TOP + 21, PANEL_X, "space: drop  p: pause  q: quit", -1);
+    mvaddnstr(FRAME_TOP + 20, PANEL_X, "h/l: move  j/k: rotate  m: drop", -1);
+    mvaddnstr(FRAME_TOP + 21, PANEL_X, "space: hard drop  p: pause  q: quit", -1);
 }
 
 static void render_message(const game_t* game)
