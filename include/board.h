@@ -1,66 +1,44 @@
 #ifndef BOARD_H
 #define BOARD_H
 
+#include "tetromino.h"
 #include <stdbool.h>
 
-// Board dimensions
+/* Board dimensions (standard playfield) */
 #define BOARD_WIDTH 10
 #define BOARD_HEIGHT 20
 
-// Cell states
-typedef enum {
-    CELL_EMPTY = 0,
-    CELL_FILLED = 1
-} cell_state;
-
-// Board structure
 typedef struct {
+    /* grid[x][y]: 0 = empty, otherwise (tetromino_type + 1) */
     int grid[BOARD_WIDTH][BOARD_HEIGHT];
     int lines_cleared;
     int score;
     int level;
 } board_t;
 
-// Initialize/reset board
+/* Reset grid and statistics */
 void board_init(board_t* board);
 
-// Reset board (clears all cells)
+/* Clear all cells (keeps statistics) */
 void board_reset(board_t* board);
 
-// Check if cell is empty
-bool board_is_empty(const board_t* board, int x, int y);
+/* Would the piece collide at its current position?
+ * Cells above the top of the board (y < 0) count as empty. */
+bool board_check(const board_t* board, const piece_t* piece);
 
-// Place tetromino on board
-// Returns true if successful, false if collision
-bool board_place(const board_t* board, int x, int y, const char* symbol, int color);
+/* Would the piece collide if offset by (dx, dy)? */
+bool board_check_offset(const board_t* board, const piece_t* piece,
+                        int dx, int dy);
 
-// Check if tetromino can be placed at position (without actually placing)
-bool board_can_place(const board_t* board, int x, int y, int width, int height);
+/* Write the piece's cells into the grid (locking it in place). */
+void board_lock(board_t* board, const piece_t* piece);
 
-// Check for collisions with tetromino
-bool board_collision(const board_t* board, int x, int y, int width, int height);
+/* Remove all completed rows and shift the rest down.
+ * Returns the number of rows cleared (0-4). */
+int board_clear_lines(board_t* board);
 
-// Check if piece can move left
-bool board_can_move_left(const board_t* board, int x, int width);
-
-// Check if piece can move right
-bool board_can_move_right(const board_t* board, int x, int width);
-
-// Move piece down by one
-bool board_move_down(board_t* board, int x, int y);
-
-// Clear completed lines and update score
-void board_clear_lines(board_t* board);
-
-// Get next tetromino type
-int board_get_next_type(const board_t* board);
-
-// Check if game is over (new piece cannot spawn)
-bool board_is_game_over(const board_t* board);
-
-// Get board statistics
 int board_get_lines(const board_t* board);
 int board_get_score(const board_t* board);
 int board_get_level(const board_t* board);
 
-#endif // BOARD_H
+#endif /* BOARD_H */
