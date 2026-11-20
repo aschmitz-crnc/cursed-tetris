@@ -26,7 +26,15 @@
 #define FRAME_H (BOARD_HEIGHT + 2)           /* 22 */
 #define FRAME_BOTTOM (FRAME_TOP + FRAME_H - 1) /* 22 */
 #define MESSAGE_ROW (FRAME_BOTTOM + 1)       /* 23 */
-#define PANEL_X 25
+
+/* Side panel: NEXT box (x 25..36, rows 1..16), score box (x 39..54,
+ * rows 1..5), controls below the NEXT box. */
+#define NEXT_X 25
+#define NEXT_W 12
+#define NEXT_BOTTOM (FRAME_TOP + 15)         /* row 16 */
+#define SCORE_X 39
+#define SCORE_W 16
+#define SCORE_BOTTOM (FRAME_TOP + 4)         /* row 5 */
 
 /* Color pair ids */
 #define PAIR_TITLE 1
@@ -127,44 +135,59 @@ static void render_board(const game_t* game)
     }
 }
 
-static void render_preview(const game_t* game)
+static void render_next_box(const game_t* game)
 {
+    int top = FRAME_TOP;
     attron(COLOR_PAIR(PAIR_PANEL));
-    mvaddstr(FRAME_TOP, PANEL_X, "NEXT");
+    mvaddnstr(top, NEXT_X, "+-- NEXT --+", -1);
+    mvaddnstr(NEXT_BOTTOM, NEXT_X, "+----------+", -1);
+    for (int y = top + 1; y < NEXT_BOTTOM; y++) {
+        mvaddch(y, NEXT_X, '|');
+        mvaddch(y, NEXT_X + NEXT_W - 1, '|');
+    }
+    /* blank the interior (old preview shapes may be wider elsewhere) */
+    for (int y = top + 1; y < NEXT_BOTTOM; y++)
+        mvaddnstr(y, NEXT_X + 1, "          ", 10);
     attroff(COLOR_PAIR(PAIR_PANEL));
 
     for (int i = 0; i < NEXT_PREVIEW_COUNT; i++) {
         const piece_t* p = &game->next_pieces.pieces[i];
         const int (*shape)[PIECE_BOX] = shape_of(p->type, p->rotation);
-        int base_y = FRAME_TOP + 1 + i * (PIECE_BOX + 1); /* 2, 7, 12 */
+        int base_y = top + 1 + i * (PIECE_BOX + 1); /* 2, 7, 12 */
         for (int r = 0; r < PIECE_BOX; r++) {
-            mvaddnstr(base_y + r, PANEL_X, "        ", 8); /* blank old */
             for (int c = 0; c < PIECE_BOX; c++) {
                 if (shape[r][c])
-                    draw_block(base_y + r, PANEL_X + 2 * c, p->type);
+                    draw_block(base_y + r, NEXT_X + 2 + 2 * c, p->type);
             }
         }
     }
 }
 
-static void render_stat_row(int y, const char* label, int value)
+static void render_score_box(const game_t* game)
 {
+    int top = FRAME_TOP;
     attron(COLOR_PAIR(PAIR_PANEL));
-    mvaddnstr(y, PANEL_X, label, 5);
-    mvaddnstr(y, PANEL_X + 6, "       ", 7); /* blank old value */
-    mvprintw(y, PANEL_X + 6, "%7d", value);
+    mvaddnstr(top, SCORE_X, "+--------------+", -1);
+    mvaddnstr(SCORE_BOTTOM, SCORE_X, "+--------------+", -1);
+    for (int y = top + 1; y < SCORE_BOTTOM; y++) {
+        mvaddch(y, SCORE_X, '|');
+        mvaddch(y, SCORE_X + SCORE_W - 1, '|');
+        mvaddnstr(y, SCORE_X + 1, "              ", 14); /* blank interior */
+    }
     attroff(COLOR_PAIR(PAIR_PANEL));
+
+    mvaddnstr(top + 1, SCORE_X + 1, "SCORE", 5);
+    mvprintw(top + 1, SCORE_X + 7, "%7d", game_get_score(game));
+    mvaddnstr(top + 2, SCORE_X + 1, "LINES", 5);
+    mvprintw(top + 2, SCORE_X + 7, "%7d", game_get_lines(game));
+    mvaddnstr(top + 3, SCORE_X + 1, "LEVEL", 5);
+    mvprintw(top + 3, SCORE_X + 7, "%7d", game_get_level(game));
 }
 
-static void render_stats(const game_t* game)
+static void render_controls(void)
 {
-    render_stat_row(FRAME_TOP + 16, "SCORE", game_get_score(game));
-    render_stat_row(FRAME_TOP + 17, "LINES", game_get_lines(game));
-    render_stat_row(FRAME_TOP + 18, "LEVEL", game_get_level(game));
-
-    /* Controls (constant) */
-    mvaddnstr(FRAME_TOP + 20, PANEL_X, "h/l: move  j/k: rotate  m: drop", -1);
-    mvaddnstr(FRAME_TOP + 21, PANEL_X, "space: hard drop  p: pause  q: quit", -1);
+    mvaddnstr(FRAME_TOP + 17, NEXT_X, "h/l: move  j/k: rotate  m: drop", -1);
+    mvaddnstr(FRAME_TOP + 18, NEXT_X, "space: hard drop  p: pause  q: quit", -1);
 }
 
 static void render_message(const game_t* game)
@@ -193,8 +216,9 @@ static void render(const game_t* game)
     /* No clear(): ncurses only transmits cells that changed. */
     render_title();
     render_board(game);
-    render_preview(game);
-    render_stats(game);
+    render_next_box(game);
+    render_score_box(game);
+    render_controls();
     render_message(game);
     refresh();
 }
